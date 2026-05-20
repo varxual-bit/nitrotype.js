@@ -4,8 +4,8 @@ import aiohttp
 import json
 from datetime import datetime, timedelta
 import discord
-from discord.ext import commands
-from discord.commands import SlashCommandGroup, slash_command
+from discord.ext import commands, tasks
+from discord.commands import slash_command
 from urllib.parse import urlencode
 
 # Initialize bot with intents
@@ -236,14 +236,14 @@ async def on_ready():
     print(f"✅ Bot is online as {bot.user}")
 
 
-@slash_command(description="Nitro Type account management panel")
-async def panel(
+@slash_command(description="Nitro Type account management")
+async def nitro(
     ctx: discord.ApplicationContext,
-    action: discord.Option(str, choices=["login", "view", "logout"], description="Panel action") = "view",
+    action: discord.Option(str, choices=["login", "view", "logout"], description="Nitro action") = "view",
     username: discord.Option(str, description="Nitro Type username (required for login)", required=False) = None,
     password: discord.Option(str, description="Nitro Type password (required for login, hidden input)", required=False) = None
 ):
-    """Main panel command for Nitro Type"""
+    """Main command for Nitro Type management"""
     
     user_id = ctx.author.id
     
@@ -324,7 +324,7 @@ async def panel(
         if not active_sessions:
             embed = discord.Embed(
                 title="❌ No Active Sessions",
-                description="You don't have any active Nitro Type sessions. Use `/panel login` to create one.",
+                description="You don't have any active Nitro Type sessions. Use `/nitro action:login` to create one.",
                 color=discord.Color.red()
             )
             await ctx.followup.send(embed=embed, ephemeral=True)
@@ -381,9 +381,6 @@ async def cleanup_sessions():
     if expired:
         print(f"🧹 Cleaned up {len(expired)} expired session(s)")
 
-
-# Import tasks for the cleanup loop
-from discord.ext import tasks
 
 cleanup_sessions.start()
 
